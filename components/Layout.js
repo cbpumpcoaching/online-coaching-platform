@@ -2,18 +2,19 @@ export default function Layout({ children }) {
   return (
     <>
       <header style={styles.header}>
-        <h1>Online Coaching Platform</h1>
-        <nav>
-          <a href="/">Home</a>
-          <a href="#services">Services</a>
-          <a href="#apply">Apply</a>
+        <h1 style={styles.logo}>Online Coaching Platform</h1>
+
+        <nav style={styles.nav}>
+          <a href="/" style={styles.link}>Home</a>
+          <a href="#services" style={styles.link}>Services</a>
+          <a href="#apply" style={styles.link}>Apply</a>
         </nav>
       </header>
 
       <main style={styles.main}>{children}</main>
 
       <footer style={styles.footer}>
-        <p>© {new Date().getFullYear()} Online Coaching</p>
+        © 2026 Online Coaching
       </footer>
     </>
   );
@@ -21,21 +22,33 @@ export default function Layout({ children }) {
 
 const styles = {
   header: {
-    padding: '20px 40px',
-    borderBottom: '1px solid #e5e7eb',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: "24px 48px",
+    borderBottom: "1px solid #eee",
+  },
+  logo: {
+    fontSize: "24px",
+    margin: 0,
+  },
+  nav: {
+    display: "flex",
+    gap: "20px",
+  },
+  link: {
+    textDecoration: "none",
+    fontWeight: 500,
   },
   main: {
-    padding: '40px',
-    maxWidth: '900px',
-    margin: '0 auto',
+    maxWidth: "900px",
+    margin: "0 auto",
+    padding: "64px 24px",
   },
   footer: {
-    padding: '20px',
-    textAlign: 'center',
-    borderTop: '1px solid #e5e7eb',
-    marginTop: '60px',
+    textAlign: "center",
+    padding: "24px",
+    borderTop: "1px solid #eee",
+    marginTop: "64px",
   },
 };
