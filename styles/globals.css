@@ -9,3 +9,33 @@ body {
   background: #f9fafb;
   color: #111;
 }
+a {
+  margin-left: 16px;
+  text-decoration: none;
+  color: #111;
+  font-weight: 500;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+button {
+  padding: 12px 20px;
+  background: black;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+button:hover {
+  opacity: 0.85;
+}
+
+h2 {
+  margin-bottom: 12px;
+}
+
+p {
+  max-width: 600px;
+}
