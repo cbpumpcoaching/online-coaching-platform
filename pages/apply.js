@@ -3,7 +3,7 @@ export default function Apply() {
     <div>
       <header style={styles.header}>
         <div style={styles.headerInner}>
-          <div style={styles.brand}>Online Coaching Platform</div>
+    <div style={styles.brand}>CBPUMP</div>
 
           <nav style={styles.nav}>
             <a href="/" style={styles.navLink}>Home</a>
