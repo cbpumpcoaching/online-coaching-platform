@@ -70,7 +70,7 @@ export default function Apply() {
       </main>
 
       <footer style={styles.footer}>
-        <p style={styles.footerText}>© {new Date().getFullYear()} Online Coaching</p>
+        <p style={styles.footerText}>© © {new Date().getFullYear()} CBPUMP
       </footer>
     </div>
   );
