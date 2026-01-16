@@ -1,26 +1,30 @@
+import Layout from '../components/Layout';
+
 export default function Home() {
   return (
-    <div style={{ padding: '40px' }}>
-      <header style={{ marginBottom: '40px' }}>
-        <h1>Online Coaching Platform</h1>
-        <p>Your transformation starts here.</p>
-      </header>
+    <Layout>
+      <section style={{ marginBottom: '48px' }}>
+        <h2>Transform Your Body</h2>
+        <p>
+          Personalised online coaching to help you build strength,
+          confidence, and consistency.
+        </p>
+      </section>
 
-      <main>
-        <section style={{ marginBottom: '32px' }}>
-          <h2>What I Offer</h2>
-          <ul>
-            <li>1:1 Online Coaching</li>
-            <li>Custom Training Plans</li>
-            <li>Nutrition Guidance</li>
-          </ul>
-        </section>
+      <section id="services" style={{ marginBottom: '48px' }}>
+        <h2>What’s Included</h2>
+        <ul>
+          <li>1:1 Coaching</li>
+          <li>Custom Training Plans</li>
+          <li>Nutrition Guidance</li>
+          <li>Weekly Check-ins</li>
+        </ul>
+      </section>
 
-        <section>
-          <h2>Get Started</h2>
-          <button>Apply Now</button>
-        </section>
-      </main>
-    </div>
+      <section id="apply">
+        <h2>Apply Now</h2>
+        <button>Start Your Journey</button>
+      </section>
+    </Layout>
   );
 }
