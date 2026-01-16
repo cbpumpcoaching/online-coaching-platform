@@ -1,119 +1,91 @@
-import Layout from "../components/Layout";
-
 export default function Home() {
   return (
-    <Layout>
-      <section style={styles.hero}>
-        <h1 style={styles.heroTitle}>CBPUMP Online Coaching</h1>
-        <p style={styles.heroText}>
-          Personalised online coaching to help you build strength, confidence, and consistency.
+    <div style={{ fontFamily: "Arial, sans-serif" }}>
+      
+      {/* NAVBAR */}
+      <header
+        style={{
+          padding: "20px 40px",
+          borderBottom: "1px solid #eee",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <h2 style={{ margin: 0 }}>CBPUMP</h2>
+
+        <nav style={{ display: "flex", gap: "20px" }}>
+          <a href="/" style={{ textDecoration: "none", color: "#000" }}>Home</a>
+          <a href="/pricing" style={{ textDecoration: "none", color: "#000" }}>Services</a>
+          <a href="/apply" style={{ textDecoration: "none", color: "#000" }}>Apply</a>
+        </nav>
+      </header>
+
+      {/* HERO SECTION */}
+      <main style={{ maxWidth: "900px", margin: "0 auto", padding: "80px 20px" }}>
+        <h1 style={{ fontSize: "48px", marginBottom: "20px" }}>
+          Transform Your Body
+        </h1>
+
+        <p style={{ fontSize: "18px", maxWidth: "600px", marginBottom: "40px" }}>
+          Personalised online coaching by <strong>CBPUMP</strong> to help you
+          build strength, confidence, and long-term consistency.
         </p>
 
-        <div style={styles.heroButtons}>
-          <a href="/pricing" style={{ textDecoration: "none" }}>
-            <button style={styles.buttonPrimary}>View Pricing</button>
+        {/* WHAT'S INCLUDED */}
+        <section style={{ marginBottom: "60px" }}>
+          <h2 style={{ fontSize: "28px", marginBottom: "20px" }}>
+            What’s Included
+          </h2>
+
+          <ul style={{ fontSize: "16px", lineHeight: "1.8" }}>
+            <li>4-day gym training plans</li>
+            <li>Beginner, Intermediate & Advanced levels</li>
+            <li>Muscle gain, fat loss or fitness goals</li>
+            <li>Dietary advice tailored to you</li>
+            <li>Exercise demo videos for every movement</li>
+            <li>Monthly check-ins & progress tracking</li>
+          </ul>
+        </section>
+
+        {/* APPLY CTA */}
+        <section>
+          <h2 style={{ fontSize: "28px", marginBottom: "10px" }}>
+            Apply Now
+          </h2>
+
+          <p style={{ fontSize: "16px", maxWidth: "600px", marginBottom: "20px" }}>
+            Choose your level, set your goal, and receive a fully personalised
+            training and nutrition plan from CBPUMP.
+          </p>
+
+          <a
+            href="/apply"
+            style={{
+              display: "inline-block",
+              padding: "14px 24px",
+              backgroundColor: "#000",
+              color: "#fff",
+              textDecoration: "none",
+              fontWeight: "bold",
+            }}
+          >
+            Start Your Journey
           </a>
-          <a href="/apply" style={{ textDecoration: "none" }}>
-            <button style={styles.buttonSecondary}>Apply</button>
-          </a>
-        </div>
+        </section>
+      </main>
 
-        <p style={styles.smallNote}>£30/month via PayPal • 4-day plans • Nutrition • Videos • Check-ins</p>
-      </section>
-
-      <section id="services" style={styles.section}>
-        <h2 style={styles.sectionTitle}>What’s Included</h2>
-        <ul style={styles.list}>
-          <li>4-day gym training plans</li>
-          <li>Beginner, Intermediate &amp; Advanced levels</li>
-          <li>Muscle gain, fat loss or fitness goals</li>
-          <li>Dietary advice tailored to you</li>
-          <li>Exercise demo videos for every movement</li>
-          <li>Monthly check-ins &amp; progress tracking</li>
-        </ul>
-      </section>
-
-      <section id="apply" style={styles.section}>
-        <h2 style={styles.sectionTitle}>Start Your Journey</h2>
-        <p style={styles.paragraph}>
-          Pick your level, pick your goal, and we’ll build your training and nutrition around you.
-        </p>
-        <a href="/apply" style={{ textDecoration: "none" }}>
-          <button style={styles.buttonPrimary}>Apply Now</button>
-        </a>
-      </section>
-    </Layout>
+      {/* FOOTER */}
+      <footer
+        style={{
+          borderTop: "1px solid #eee",
+          padding: "20px",
+          textAlign: "center",
+          fontSize: "14px",
+        }}
+      >
+        © {new Date().getFullYear()} CBPUMP Coaching
+      </footer>
+    </div>
   );
 }
-
-const styles = {
-  hero: {
-    textAlign: "center",
-    marginBottom: 60,
-  },
-  heroTitle: {
-    fontSize: 56,
-    margin: 0,
-    lineHeight: 1.05,
-  },
-  heroText: {
-    marginTop: 16,
-    fontSize: 18,
-    lineHeight: 1.5,
-    maxWidth: 650,
-    marginLeft: "auto",
-    marginRight: "auto",
-  },
-  heroButtons: {
-    marginTop: 18,
-    display: "flex",
-    gap: 12,
-    justifyContent: "center",
-    flexWrap: "wrap",
-  },
-  buttonPrimary: {
-    background: "#000",
-    color: "#fff",
-    border: "none",
-    borderRadius: 6,
-    padding: "12px 20px",
-    fontSize: 16,
-    cursor: "pointer",
-  },
-  buttonSecondary: {
-    background: "#fff",
-    color: "#000",
-    border: "1px solid #000",
-    borderRadius: 6,
-    padding: "12px 20px",
-    fontSize: 16,
-    cursor: "pointer",
-  },
-  smallNote: {
-    marginTop: 14,
-    fontSize: 13,
-    color: "#555",
-  },
-  section: {
-    marginTop: 50,
-    textAlign: "center",
-  },
-  sectionTitle: {
-    fontSize: 28,
-    marginBottom: 14,
-  },
-  list: {
-    display: "inline-block",
-    textAlign: "left",
-    lineHeight: 1.8,
-    fontSize: 16,
-    margin: 0,
-    paddingLeft: 20,
-  },
-  paragraph: {
-    maxWidth: 650,
-    margin: "0 auto 16px auto",
-    fontSize: 16,
-    lineHeight: 1.5,
-  },
-};
