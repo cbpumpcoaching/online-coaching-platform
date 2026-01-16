@@ -62,8 +62,8 @@ const styles = {
     marginBottom: "16px",
   },
   button: {
-    padding: "12px 24px",
-    fontSize: "16px",
-    cursor: "pointer",
+   <a href="/apply">
+  <button style={styles.button}>Start Your Journey</button>
+</a>
   },
 };
