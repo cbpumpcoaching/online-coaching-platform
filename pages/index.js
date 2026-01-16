@@ -9,11 +9,16 @@ export default function Home() {
           Personalised online coaching to help you build strength, confidence, and consistency.
         </p>
 
-        <div style={{ marginTop: 18 }}>
+        <div style={styles.heroButtons}>
+          <a href="/pricing" style={{ textDecoration: "none" }}>
+            <button style={styles.buttonPrimary}>View Pricing</button>
+          </a>
           <a href="/apply" style={{ textDecoration: "none" }}>
-            <button style={styles.button}>Apply Now</button>
+            <button style={styles.buttonSecondary}>Apply</button>
           </a>
         </div>
+
+        <p style={styles.smallNote}>£30/month via PayPal • 4-day plans • Nutrition • Videos • Check-ins</p>
       </section>
 
       <section id="services" style={styles.section}>
@@ -31,10 +36,10 @@ export default function Home() {
       <section id="apply" style={styles.section}>
         <h2 style={styles.sectionTitle}>Start Your Journey</h2>
         <p style={styles.paragraph}>
-          Choose your level, set your goal, and receive a personalised training and nutrition plan.
+          Pick your level, pick your goal, and we’ll build your training and nutrition around you.
         </p>
         <a href="/apply" style={{ textDecoration: "none" }}>
-          <button style={styles.button}>Get Started</button>
+          <button style={styles.buttonPrimary}>Apply Now</button>
         </a>
       </section>
     </Layout>
@@ -43,8 +48,8 @@ export default function Home() {
 
 const styles = {
   hero: {
-    marginBottom: 60,
     textAlign: "center",
+    marginBottom: 60,
   },
   heroTitle: {
     fontSize: 56,
@@ -58,6 +63,36 @@ const styles = {
     maxWidth: 650,
     marginLeft: "auto",
     marginRight: "auto",
+  },
+  heroButtons: {
+    marginTop: 18,
+    display: "flex",
+    gap: 12,
+    justifyContent: "center",
+    flexWrap: "wrap",
+  },
+  buttonPrimary: {
+    background: "#000",
+    color: "#fff",
+    border: "none",
+    borderRadius: 6,
+    padding: "12px 20px",
+    fontSize: 16,
+    cursor: "pointer",
+  },
+  buttonSecondary: {
+    background: "#fff",
+    color: "#000",
+    border: "1px solid #000",
+    borderRadius: 6,
+    padding: "12px 20px",
+    fontSize: 16,
+    cursor: "pointer",
+  },
+  smallNote: {
+    marginTop: 14,
+    fontSize: 13,
+    color: "#555",
   },
   section: {
     marginTop: 50,
@@ -80,14 +115,5 @@ const styles = {
     margin: "0 auto 16px auto",
     fontSize: 16,
     lineHeight: 1.5,
-  },
-  button: {
-    background: "#000",
-    color: "#fff",
-    border: "none",
-    borderRadius: 6,
-    padding: "12px 20px",
-    fontSize: 16,
-    cursor: "pointer",
   },
 };
