@@ -2,19 +2,19 @@ export default function Layout({ children }) {
   return (
     <>
       <header style={styles.header}>
-        <h1 style={styles.logo}>Online Coaching Platform</h1>
+        <h1 style={styles.logo}>CBPUMP</h1>
 
         <nav style={styles.nav}>
           <a href="/" style={styles.link}>Home</a>
-          <a href="#services" style={styles.link}>Services</a>
-          <a href="#apply" style={styles.link}>Apply</a>
+          <a href="/#services" style={styles.link}>Services</a>
+          <a href="/apply" style={styles.link}>Apply</a>
         </nav>
       </header>
 
       <main style={styles.main}>{children}</main>
 
       <footer style={styles.footer}>
-        © 2026 Online Coaching
+        © {new Date().getFullYear()} CBPUMP
       </footer>
     </>
   );
@@ -29,8 +29,10 @@ const styles = {
     borderBottom: "1px solid #eee",
   },
   logo: {
-    fontSize: "24px",
+    fontSize: "26px",
     margin: 0,
+    fontWeight: 700,
+    letterSpacing: "0.5px",
   },
   nav: {
     display: "flex",
