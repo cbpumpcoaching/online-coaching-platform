@@ -7,6 +7,7 @@ export default function Layout({ children }) {
 
           <nav style={styles.nav}>
             <a href="/" style={styles.navLink}>Home</a>
+            <a href="/pricing" style={styles.navLink}>Pricing</a>
             <a href="/#services" style={styles.navLink}>Services</a>
             <a href="/apply" style={styles.navLink}>Apply</a>
           </nav>
@@ -45,6 +46,8 @@ const styles = {
     display: "flex",
     gap: 18,
     fontSize: 16,
+    flexWrap: "wrap",
+    justifyContent: "flex-end",
   },
   navLink: {
     textDecoration: "none",
