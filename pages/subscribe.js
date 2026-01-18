@@ -15,10 +15,16 @@ export default function SubscribePage() {
         body: JSON.stringify({}),
       });
 
-      const data = await res.json();
+      const text = await res.text();
+      let data = null;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        throw new Error(`Server returned non-JSON: ${text.slice(0, 200)}`);
+      }
 
       if (!res.ok) {
-        throw new Error(data?.error || "Failed to create subscription");
+        throw new Error(JSON.stringify(data, null, 2));
       }
 
       window.location.href = data.approvalUrl;
@@ -37,7 +43,19 @@ export default function SubscribePage() {
         {loading ? "Opening PayPal…" : "Subscribe with PayPal"}
       </button>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {error ? (
+        <pre
+          style={{
+            marginTop: 16,
+            padding: 12,
+            background: "#111",
+            color: "#0f0",
+            overflowX: "auto",
+          }}
+        >
+          {error}
+        </pre>
+      ) : null}
     </main>
   );
 }
