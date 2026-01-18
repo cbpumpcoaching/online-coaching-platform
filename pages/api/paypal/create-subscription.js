@@ -5,35 +5,26 @@ export default async function handler(req, res) {
   }
 
   try {
-    const {
-      PAYPAL_CLIENT_ID,
-      PAYPAL_SECRET,
-      PAYPAL_PLAN_ID,
-      PAYPAL_BASE_URL,
-      NEXT_PUBLIC_APP_URL,
-    } = process.env;
+    const { PAYPAL_CLIENT_ID, PAYPAL_SECRET, PAYPAL_PLAN_ID, PAYPAL_BASE_URL } = process.env;
 
-    // 1) Check env vars clearly
     if (!PAYPAL_CLIENT_ID || !PAYPAL_SECRET || !PAYPAL_PLAN_ID || !PAYPAL_BASE_URL) {
       return res.status(500).json({
-        error: "Missing env vars on the server (Vercel)",
+        error: "Missing PayPal environment variables on Vercel",
         env: {
           PAYPAL_CLIENT_ID: !!PAYPAL_CLIENT_ID,
           PAYPAL_SECRET: !!PAYPAL_SECRET,
           PAYPAL_PLAN_ID: !!PAYPAL_PLAN_ID,
           PAYPAL_BASE_URL: !!PAYPAL_BASE_URL,
-          NEXT_PUBLIC_APP_URL: !!NEXT_PUBLIC_APP_URL,
         },
       });
     }
 
-    const appUrl =
-      NEXT_PUBLIC_APP_URL ||
-      (req.headers["x-forwarded-proto"]
-        ? `${req.headers["x-forwarded-proto"]}://${req.headers.host}`
-        : `https://${req.headers.host}`);
+    // This builds your site URL automatically on Vercel
+    const proto = req.headers["x-forwarded-proto"] || "https";
+    const host = req.headers.host;
+    const appUrl = `${proto}://${host}`;
 
-    // 2) Get PayPal access token
+    // 1) Get access token
     const basicAuth = Buffer.from(`${PAYPAL_CLIENT_ID}:${PAYPAL_SECRET}`).toString("base64");
 
     const tokenRes = await fetch(`${PAYPAL_BASE_URL}/v1/oauth2/token`, {
@@ -53,7 +44,7 @@ export default async function handler(req, res) {
       return res.status(500).json({
         error: "PayPal token response was not JSON",
         status: tokenRes.status,
-        body: tokenText.slice(0, 500),
+        body: tokenText.slice(0, 400),
       });
     }
 
@@ -66,7 +57,7 @@ export default async function handler(req, res) {
 
     const accessToken = tokenData.access_token;
 
-    // 3) Create subscription
+    // 2) Create subscription
     const subRes = await fetch(`${PAYPAL_BASE_URL}/v1/billing/subscriptions`, {
       method: "POST",
       headers: {
@@ -95,7 +86,7 @@ export default async function handler(req, res) {
       return res.status(500).json({
         error: "PayPal create subscription response was not JSON",
         status: subRes.status,
-        body: subText.slice(0, 500),
+        body: subText.slice(0, 400),
       });
     }
 
@@ -121,7 +112,7 @@ export default async function handler(req, res) {
     });
   } catch (err) {
     return res.status(500).json({
-      error: "Server crashed (catch block)",
+      error: "Server error",
       details: String(err),
     });
   }
