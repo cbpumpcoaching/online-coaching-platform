@@ -5,20 +5,20 @@ import Link from "next/link";
 export default function TestProgrammePage() {
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
+  const [debug, setDebug] = useState("");
 
   async function generate() {
     setError("");
+    setDebug("");
     setResult(null);
 
-    // Fake onboarding data (you can change these values)
     const onboarding = {
       goal: "Muscle Gain",
       daysPerWeek: 4,
       experience: "Intermediate",
-      equipment: ["Gym membership (recommended)"],
+      equipment: ["gym"],
     };
 
-    // Save onboarding so success page can find it too
     localStorage.setItem("cbpump_onboarding", JSON.stringify(onboarding));
 
     try {
@@ -28,12 +28,15 @@ export default function TestProgrammePage() {
         body: JSON.stringify(onboarding),
       });
 
+      const text = await res.text(); // read raw response (even if it errors)
+
+      setDebug(`Status: ${res.status}\n\nResponse:\n${text}`);
+
       if (!res.ok) {
-        const msg = await res.text();
-        throw new Error(msg || "API failed");
+        throw new Error(`API returned ${res.status}`);
       }
 
-      const programme = await res.json();
+      const programme = JSON.parse(text);
       localStorage.setItem("cbpump_programme_v1", JSON.stringify(programme));
       setResult(programme);
     } catch (e) {
@@ -64,15 +67,18 @@ export default function TestProgrammePage() {
         </div>
       ) : null}
 
+      {debug ? (
+        <pre style={{ marginTop: 16, whiteSpace: "pre-wrap", background: "#f6f6f6", padding: 12, borderRadius: 10 }}>
+          {debug}
+        </pre>
+      ) : null}
+
       {result ? (
         <div style={{ marginTop: 16 }}>
-          <p>✅ Programme generated and saved to localStorage.</p>
+          <p>✅ Programme generated and saved.</p>
           <p>
             <Link href="/programme">Go to /programme →</Link>
           </p>
-          <pre style={{ whiteSpace: "pre-wrap", background: "#f6f6f6", padding: 12, borderRadius: 10 }}>
-            {JSON.stringify(result, null, 2)}
-          </pre>
         </div>
       ) : null}
     </div>
