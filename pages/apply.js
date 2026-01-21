@@ -14,10 +14,7 @@ function normalizeEquipment(selected) {
   const hasNonBodyweight =
     set.has("full_gym") || set.has("dumbbells") || set.has("bands") || set.has("kettlebells");
 
-  // If they picked anything else, remove bodyweight_only
   if (hasNonBodyweight) set.delete("bodyweight_only");
-
-  // If nothing selected, default to bodyweight_only
   if (set.size === 0) set.add("bodyweight_only");
 
   return Array.from(set);
@@ -29,9 +26,12 @@ export default function Apply() {
     email: "",
     goal: "",
     experience: "",
-    daysPerWeek: 3, // changed from availability text to a number
-    equipment: [], // NEW
+    daysPerWeek: 3,
+    equipment: [],
   });
+
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
 
   const normalizedEquipment = useMemo(
     () => normalizeEquipment(form.equipment),
@@ -39,15 +39,14 @@ export default function Apply() {
   );
 
   function handleChange(e) {
-    const { name, value, type } = e.target;
+    const { name, value } = e.target;
 
-    // Keep daysPerWeek as a number
     if (name === "daysPerWeek") {
       setForm((prev) => ({ ...prev, daysPerWeek: Number(value) }));
       return;
     }
 
-    setForm((prev) => ({ ...prev, [name]: type === "checkbox" ? e.target.checked : value }));
+    setForm((prev) => ({ ...prev, [name]: value }));
   }
 
   function toggleEquipment(value) {
@@ -59,32 +58,13 @@ export default function Apply() {
     });
   }
 
-  const [loading, setLoading] = useState(false);
-  const [status, setStatus] = useState({ type: "", message: "" });
-
   async function handleSubmit(e) {
     e.preventDefault();
-    setStatus({ type: "", message: "" });
+    setMessage("");
 
-    // Simple validation
-    if (!form.name.trim()) {
-      setStatus({ type: "error", message: "Please enter your full name." });
-      return;
-    }
-    if (!form.email.trim()) {
-      setStatus({ type: "error", message: "Please enter your email address." });
-      return;
-    }
-    if (!form.goal) {
-      setStatus({ type: "error", message: "Please select your main goal." });
-      return;
-    }
-    if (!form.experience) {
-      setStatus({ type: "error", message: "Please select your training experience." });
-      return;
-    }
-    if (!Number.isInteger(form.daysPerWeek) || form.daysPerWeek < 2 || form.daysPerWeek > 6) {
-      setStatus({ type: "error", message: "Days per week must be between 2 and 6." });
+    // quick validation
+    if (!form.name.trim() || !form.email.trim() || !form.goal || !form.experience) {
+      setMessage("Please complete all required fields.");
       return;
     }
 
@@ -103,21 +83,15 @@ export default function Apply() {
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
-        throw new Error(data?.error || "Something went wrong submitting the form.");
+        throw new Error(data?.error || "Something went wrong.");
       }
 
-      setStatus({
-        type: "success",
-        message: "Application submitted! Next step: choose your subscription.",
-      });
+      setMessage("✅ Application submitted! (Saved in server logs for now.)");
 
-      // Optional: redirect to pricing after submit
+      // Optional redirect after submit:
       // window.location.href = "/pricing";
-
-      // Clear the form (optional)
-      // setForm({ name: "", email: "", goal: "", experience: "", daysPerWeek: 3, equipment: [] });
     } catch (err) {
-      setStatus({ type: "error", message: err.message || "Submission failed." });
+      setMessage(`❌ ${err.message || "Submission failed."}`);
     } finally {
       setLoading(false);
     }
@@ -126,12 +100,7 @@ export default function Apply() {
   return (
     <div style={{ fontFamily: "Arial, sans-serif" }}>
       {/* HEADER */}
-      <header
-        style={{
-          padding: "20px 40px",
-          borderBottom: "1px solid #eee",
-        }}
-      >
+      <header style={{ padding: "20px 40px", borderBottom: "1px solid #eee" }}>
         <h2 style={{ margin: 0 }}>CBPUMP Coaching</h2>
       </header>
 
@@ -145,7 +114,7 @@ export default function Apply() {
 
         <form onSubmit={handleSubmit}>
           {/* NAME */}
-          <label>Full Name</label>
+          <label>Full Name *</label>
           <input
             type="text"
             name="name"
@@ -156,7 +125,7 @@ export default function Apply() {
           />
 
           {/* EMAIL */}
-          <label>Email Address</label>
+          <label>Email Address *</label>
           <input
             type="email"
             name="email"
@@ -167,7 +136,7 @@ export default function Apply() {
           />
 
           {/* GOAL */}
-          <label>Main Goal</label>
+          <label>Main Goal *</label>
           <select
             name="goal"
             value={form.goal}
@@ -182,7 +151,7 @@ export default function Apply() {
           </select>
 
           {/* EXPERIENCE */}
-          <label>Training Experience</label>
+          <label>Training Experience *</label>
           <select
             name="experience"
             value={form.experience}
@@ -196,8 +165,8 @@ export default function Apply() {
             <option value="advanced">Advanced</option>
           </select>
 
-          {/* DAYS PER WEEK (changed) */}
-          <label>How many days per week can you train?</label>
+          {/* DAYS PER WEEK */}
+          <label>How many days per week can you train? *</label>
           <select
             name="daysPerWeek"
             value={form.daysPerWeek}
@@ -211,10 +180,10 @@ export default function Apply() {
             <option value={6}>6 days</option>
           </select>
 
-          {/* EQUIPMENT (NEW) */}
+          {/* EQUIPMENT */}
           <div style={cardStyle}>
             <label style={{ display: "block", marginBottom: 8, fontWeight: "bold" }}>
-              Equipment available
+              Equipment available (select all that apply)
             </label>
             <p style={{ marginTop: 0, marginBottom: 14, color: "#666" }}>
               Best results typically come with gym access, but we’ll build a plan with whatever you have.
@@ -286,19 +255,17 @@ export default function Apply() {
             </div>
           </div>
 
-          {/* STATUS MESSAGE */}
-          {status.message ? (
+          {message ? (
             <div
               style={{
                 marginTop: 10,
                 padding: 12,
                 borderRadius: 10,
-                border: "1px solid",
-                borderColor: status.type === "error" ? "#ffb4b4" : "#b7f0c2",
-                background: status.type === "error" ? "#fff1f1" : "#f1fff4",
+                border: "1px solid #ddd",
+                background: "#fafafa",
               }}
             >
-              {status.message}
+              {message}
             </div>
           ) : null}
 
