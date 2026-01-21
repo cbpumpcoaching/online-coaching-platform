@@ -1,21 +1,22 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 
-export default function MembersPage() {
+export default function Members() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
-  const [subId, setSubId] = useState("");
+  const [subscriptionId, setSubscriptionId] = useState("");
 
   useEffect(() => {
+    // Runs only in the browser
     const isSubscribed = localStorage.getItem("cbpump_is_subscribed");
-    const subscriptionId = localStorage.getItem("cbpump_subscription_id");
+    const subId = localStorage.getItem("cbpump_subscription_id");
 
     if (isSubscribed !== "true") {
       router.replace("/pricing");
       return;
     }
 
-    setSubId(subscriptionId || "");
+    setSubscriptionId(subId || "");
     setLoading(false);
   }, [router]);
 
@@ -24,23 +25,23 @@ export default function MembersPage() {
   return (
     <main style={{ maxWidth: 720, margin: "80px auto", padding: 20 }}>
       <h1>CBPUMP Members Area 💪</h1>
-      <p>Welcome! Your membership is active.</p>
+      <p>Welcome — your membership is active.</p>
 
-      {subId && (
+      {subscriptionId && (
         <p>
-          <strong>Your subscription ID:</strong> <code>{subId}</code>
+          <strong>Your subscription ID:</strong> <code>{subscriptionId}</code>
         </p>
       )}
 
       <button
-        style={{ marginTop: 20 }}
+        style={{ marginTop: 24 }}
         onClick={() => {
           localStorage.removeItem("cbpump_is_subscribed");
           localStorage.removeItem("cbpump_subscription_id");
           router.push("/pricing");
         }}
       >
-        Log out (clear local membership)
+        Log out (clear membership)
       </button>
     </main>
   );
