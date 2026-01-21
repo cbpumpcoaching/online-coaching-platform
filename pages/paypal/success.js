@@ -11,6 +11,7 @@ export default function PayPalSuccess() {
   useEffect(() => {
     if (!router.isReady) return;
 
+    // If someone visits /paypal/success manually
     if (!subscription_id) {
       setStatus("Missing subscription_id. Please complete checkout first.");
       return;
@@ -18,6 +19,8 @@ export default function PayPalSuccess() {
 
     const confirm = async () => {
       try {
+        setStatus("Confirming your subscription...");
+
         const res = await fetch("/api/paypal/confirm-subscription", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -25,15 +28,17 @@ export default function PayPalSuccess() {
         });
 
         const data = await res.json().catch(() => ({}));
-        if (!res.ok) throw new Error(data?.error || "Confirmation failed");
 
-        // ✅ Save “membership” locally (simple)
-        localStorage.setItem("cbpump_subscription_id", subscription_id);
+        if (!res.ok) {
+          throw new Error(data?.error || "Subscription confirmation failed");
+        }
+
+        // ✅ Save membership locally (simple gate)
         localStorage.setItem("cbpump_is_subscribed", "true");
+        localStorage.setItem("cbpump_subscription_id", subscription_id);
 
-        setStatus("✅ Subscription confirmed! Redirecting...");
+        setStatus("✅ Subscription confirmed! Redirecting to members area...");
 
-        // Redirect to members area
         setTimeout(() => {
           router.push("/members");
         }, 800);
@@ -44,7 +49,7 @@ export default function PayPalSuccess() {
     };
 
     confirm();
-  }, [router.isReady, subscription_id]);
+  }, [router.isReady, subscription_id, router]);
 
   return (
     <main style={{ maxWidth: 720, margin: "80px auto", padding: 20 }}>
@@ -62,6 +67,14 @@ export default function PayPalSuccess() {
           <strong>Error:</strong> <code>{error}</code>
         </p>
       )}
+
+      {/* Manual button just in case redirect is blocked */}
+      <button
+        style={{ marginTop: 24 }}
+        onClick={() => router.push("/members")}
+      >
+        Go to Members Area
+      </button>
     </main>
   );
 }
