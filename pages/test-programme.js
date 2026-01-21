@@ -1,14 +1,13 @@
-// /pages/test-programme.js
 import { useState } from "react";
 import Link from "next/link";
 
 export default function TestProgrammePage() {
-  const [debug, setDebug] = useState("");
+  const [debug, setDebug] = useState("READY ✅ (If you can read this, you are on the latest code)");
   const [ok, setOk] = useState(false);
 
   async function generate() {
     setOk(false);
-    setDebug("Calling API...");
+    setDebug("Calling /api/programme/generate ...");
 
     const onboarding = {
       goal: "Muscle Gain",
@@ -17,8 +16,6 @@ export default function TestProgrammePage() {
       equipment: ["gym"],
     };
 
-    localStorage.setItem("cbpump_onboarding", JSON.stringify(onboarding));
-
     try {
       const res = await fetch("/api/programme/generate", {
         method: "POST",
@@ -26,16 +23,21 @@ export default function TestProgrammePage() {
         body: JSON.stringify(onboarding),
       });
 
-      const json = await res.json().catch(async () => {
-        const text = await res.text();
-        return { nonJsonResponse: text };
-      });
+      // Try to parse JSON. If it isn't JSON, show raw text.
+      const text = await res.text();
+      let parsed;
+      try {
+        parsed = JSON.parse(text);
+      } catch {
+        parsed = { nonJsonResponse: text };
+      }
 
-      setDebug(`Status: ${res.status}\n\nResponse:\n${JSON.stringify(json, null, 2)}`);
+      setDebug(`Status: ${res.status}\n\nResponse:\n${JSON.stringify(parsed, null, 2)}`);
 
       if (!res.ok) return;
 
-      localStorage.setItem("cbpump_programme_v1", JSON.stringify(json));
+      localStorage.setItem("cbpump_programme_v1", JSON.stringify(parsed));
+      localStorage.setItem("cbpump_onboarding", JSON.stringify(onboarding));
       setOk(true);
     } catch (e) {
       setDebug(`Client error:\n${e?.message || String(e)}`);
@@ -44,7 +46,8 @@ export default function TestProgrammePage() {
 
   return (
     <div style={{ maxWidth: 900, margin: "40px auto", padding: 20 }}>
-      <h1>Test Programme Generator</h1>
+      <h1>Test Programme Generator (v2)</h1>
+      <p style={{ fontWeight: 700 }}>If you see “v2”, you’re on the latest deployment.</p>
 
       <button
         onClick={generate}
