@@ -3,15 +3,14 @@ import { useEffect, useState } from "react";
 
 export default function PayPalSuccess() {
   const router = useRouter();
-  const { subscription_id, ba_token, token } = router.query;
+  const { subscription_id } = router.query;
 
-  const [status, setStatus] = useState("Waiting for subscription ID...");
+  const [status, setStatus] = useState("Finalising your subscription...");
   const [error, setError] = useState("");
 
   useEffect(() => {
     if (!router.isReady) return;
 
-    // If user manually visits /paypal/success without PayPal redirect params
     if (!subscription_id) {
       setStatus("Missing subscription_id. Please complete checkout first.");
       return;
@@ -19,8 +18,6 @@ export default function PayPalSuccess() {
 
     const confirm = async () => {
       try {
-        setStatus("Finalising your subscription...");
-
         const res = await fetch("/api/paypal/confirm-subscription", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -28,12 +25,18 @@ export default function PayPalSuccess() {
         });
 
         const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data?.error || "Confirmation failed");
 
-        if (!res.ok) {
-          throw new Error(data?.error || "Subscription confirmation failed");
-        }
+        // ✅ Save “membership” locally (simple)
+        localStorage.setItem("cbpump_subscription_id", subscription_id);
+        localStorage.setItem("cbpump_is_subscribed", "true");
 
-        setStatus("✅ Subscription confirmed! You’re all set.");
+        setStatus("✅ Subscription confirmed! Redirecting...");
+
+        // Redirect to members area
+        setTimeout(() => {
+          router.push("/members");
+        }, 800);
       } catch (err) {
         setError(err.message || "Something went wrong");
         setStatus("❌ Could not confirm subscription.");
@@ -59,13 +62,6 @@ export default function PayPalSuccess() {
           <strong>Error:</strong> <code>{error}</code>
         </p>
       )}
-
-      <details style={{ marginTop: 16 }}>
-        <summary>Debug info (optional)</summary>
-        <pre style={{ whiteSpace: "pre-wrap" }}>
-{JSON.stringify({ subscription_id, ba_token, token }, null, 2)}
-        </pre>
-      </details>
     </main>
   );
 }
