@@ -1,24 +1,4 @@
-import { useMemo, useState } from "react";
-
-const EQUIPMENT_OPTIONS = [
-  { value: "full_gym", label: "Gym membership / Full gym (recommended)" },
-  { value: "dumbbells", label: "Dumbbells" },
-  { value: "bands", label: "Resistance bands" },
-  { value: "kettlebells", label: "Kettlebells" },
-  { value: "bodyweight_only", label: "Bodyweight only" },
-];
-
-function normalizeEquipment(selected) {
-  const set = new Set(selected);
-
-  const hasNonBodyweight =
-    set.has("full_gym") || set.has("dumbbells") || set.has("bands") || set.has("kettlebells");
-
-  if (hasNonBodyweight) set.delete("bodyweight_only");
-  if (set.size === 0) set.add("bodyweight_only");
-
-  return Array.from(set);
-}
+import { useState } from "react";
 
 export default function Apply() {
   const [form, setForm] = useState({
@@ -26,74 +6,65 @@ export default function Apply() {
     email: "",
     goal: "",
     experience: "",
-    daysPerWeek: 3,
-    equipment: [],
+    daysPerWeek: "",
+    equipment: [], // ✅ array of selected equipment
   });
 
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
-
-  const normalizedEquipment = useMemo(
-    () => normalizeEquipment(form.equipment),
-    [form.equipment]
-  );
+  const [status, setStatus] = useState({ state: "idle", message: "" });
 
   function handleChange(e) {
-    const { name, value } = e.target;
-
-    if (name === "daysPerWeek") {
-      setForm((prev) => ({ ...prev, daysPerWeek: Number(value) }));
-      return;
-    }
-
-    setForm((prev) => ({ ...prev, [name]: value }));
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   }
 
   function toggleEquipment(value) {
     setForm((prev) => {
-      const next = new Set(prev.equipment);
-      if (next.has(value)) next.delete(value);
-      else next.add(value);
-      return { ...prev, equipment: Array.from(next) };
+      const exists = prev.equipment.includes(value);
+      return {
+        ...prev,
+        equipment: exists
+          ? prev.equipment.filter((x) => x !== value)
+          : [...prev.equipment, value],
+      };
     });
   }
 
   async function handleSubmit(e) {
     e.preventDefault();
-    setMessage("");
+    setStatus({ state: "loading", message: "" });
 
-    // quick validation
-    if (!form.name.trim() || !form.email.trim() || !form.goal || !form.experience) {
-      setMessage("Please complete all required fields.");
-      return;
-    }
-
-    setLoading(true);
     try {
       const res = await fetch("/api/apply", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...form,
-          equipment: normalizedEquipment,
           submittedAt: new Date().toISOString(),
         }),
       });
 
-      const data = await res.json().catch(() => ({}));
+      const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data?.error || "Something went wrong.");
+        setStatus({
+          state: "error",
+          message: data?.webhookResponse || data?.details || data?.error || "Submission failed",
+        });
+        return;
       }
 
-      setMessage("✅ Application submitted! (Saved in server logs for now.)");
+      setStatus({ state: "success", message: "Application submitted ✅" });
 
-      // Optional redirect after submit:
-      // window.location.href = "/pricing";
+      // optional: clear form after success
+      setForm({
+        name: "",
+        email: "",
+        goal: "",
+        experience: "",
+        daysPerWeek: "",
+        equipment: [],
+      });
     } catch (err) {
-      setMessage(`❌ ${err.message || "Submission failed."}`);
-    } finally {
-      setLoading(false);
+      setStatus({ state: "error", message: String(err) });
     }
   }
 
@@ -106,7 +77,9 @@ export default function Apply() {
 
       {/* FORM */}
       <main style={{ maxWidth: "700px", margin: "0 auto", padding: "60px 20px" }}>
-        <h1 style={{ fontSize: "36px", marginBottom: "10px" }}>Coaching Application</h1>
+        <h1 style={{ fontSize: "36px", marginBottom: "10px" }}>
+          Coaching Application
+        </h1>
 
         <p style={{ marginBottom: "30px" }}>
           Complete the form below to apply for personalised online coaching with CBPUMP.
@@ -114,7 +87,7 @@ export default function Apply() {
 
         <form onSubmit={handleSubmit}>
           {/* NAME */}
-          <label>Full Name *</label>
+          <label>Full Name</label>
           <input
             type="text"
             name="name"
@@ -125,7 +98,7 @@ export default function Apply() {
           />
 
           {/* EMAIL */}
-          <label>Email Address *</label>
+          <label>Email Address</label>
           <input
             type="email"
             name="email"
@@ -136,7 +109,7 @@ export default function Apply() {
           />
 
           {/* GOAL */}
-          <label>Main Goal *</label>
+          <label>Main Goal</label>
           <select
             name="goal"
             value={form.goal}
@@ -151,7 +124,7 @@ export default function Apply() {
           </select>
 
           {/* EXPERIENCE */}
-          <label>Training Experience *</label>
+          <label>Training Experience</label>
           <select
             name="experience"
             value={form.experience}
@@ -166,129 +139,89 @@ export default function Apply() {
           </select>
 
           {/* DAYS PER WEEK */}
-          <label>How many days per week can you train? *</label>
+          <label>How many days per week can you train?</label>
           <select
             name="daysPerWeek"
             value={form.daysPerWeek}
             onChange={handleChange}
+            required
             style={inputStyle}
           >
-            <option value={2}>2 days</option>
-            <option value={3}>3 days</option>
-            <option value={4}>4 days</option>
-            <option value={5}>5 days</option>
-            <option value={6}>6 days</option>
+            <option value="">Select one</option>
+            <option value="2">2 days</option>
+            <option value="3">3 days</option>
+            <option value="4">4 days</option>
+            <option value="5">5 days</option>
+            <option value="6">6 days</option>
           </select>
 
           {/* EQUIPMENT */}
-          <div style={cardStyle}>
-            <label style={{ display: "block", marginBottom: 8, fontWeight: "bold" }}>
-              Equipment available (select all that apply)
+          <div style={{ marginBottom: "20px" }}>
+            <label style={{ display: "block", marginBottom: "8px" }}>
+              What equipment do you have access to?
             </label>
-            <p style={{ marginTop: 0, marginBottom: 14, color: "#666" }}>
-              Best results typically come with gym access, but we’ll build a plan with whatever you have.
+
+            <div style={checkboxWrap}>
+              <EquipmentCheckbox
+                label="Gym membership (recommended)"
+                value="gym"
+                checked={form.equipment.includes("gym")}
+                onChange={toggleEquipment}
+              />
+              <EquipmentCheckbox
+                label="Dumbbells"
+                value="dumbbells"
+                checked={form.equipment.includes("dumbbells")}
+                onChange={toggleEquipment}
+              />
+              <EquipmentCheckbox
+                label="Resistance bands"
+                value="bands"
+                checked={form.equipment.includes("bands")}
+                onChange={toggleEquipment}
+              />
+              <EquipmentCheckbox
+                label="Bodyweight only"
+                value="bodyweight"
+                checked={form.equipment.includes("bodyweight")}
+                onChange={toggleEquipment}
+              />
+            </div>
+
+            <p style={{ marginTop: "8px", color: "#555", fontSize: "14px" }}>
+              Tip: If you can, a gym membership gives you the best results and the most variety.
             </p>
-
-            <div style={{ display: "grid", gap: 10 }}>
-              {EQUIPMENT_OPTIONS.map((opt) => {
-                const checked = form.equipment.includes(opt.value);
-                const recommended = opt.value === "full_gym";
-
-                return (
-                  <button
-                    key={opt.value}
-                    type="button"
-                    onClick={() => toggleEquipment(opt.value)}
-                    style={{
-                      textAlign: "left",
-                      padding: 14,
-                      borderRadius: 10,
-                      border: checked ? "2px solid #000" : "1px solid #ccc",
-                      backgroundColor: "#fff",
-                      cursor: "pointer",
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      gap: 12,
-                    }}
-                  >
-                    <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                      <span
-                        aria-hidden
-                        style={{
-                          width: 18,
-                          height: 18,
-                          borderRadius: 4,
-                          border: checked ? "2px solid #000" : "1px solid #aaa",
-                          display: "inline-flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          fontSize: 12,
-                        }}
-                      >
-                        {checked ? "✓" : ""}
-                      </span>
-                      <span style={{ fontWeight: 600 }}>{opt.label}</span>
-                    </span>
-
-                    {recommended ? (
-                      <span
-                        style={{
-                          fontSize: 12,
-                          border: "1px solid #ddd",
-                          padding: "4px 8px",
-                          borderRadius: 999,
-                          color: "#333",
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        Recommended
-                      </span>
-                    ) : null}
-                  </button>
-                );
-              })}
-            </div>
-
-            <div style={{ marginTop: 12, fontSize: 12, color: "#666" }}>
-              Selected: <code>{JSON.stringify(normalizedEquipment)}</code>
-            </div>
           </div>
 
-          {message ? (
-            <div
-              style={{
-                marginTop: 10,
-                padding: 12,
-                borderRadius: 10,
-                border: "1px solid #ddd",
-                background: "#fafafa",
-              }}
-            >
-              {message}
-            </div>
-          ) : null}
-
-          <button
-            type="submit"
-            disabled={loading}
-            style={{
-              marginTop: "20px",
-              padding: "14px",
-              width: "100%",
-              backgroundColor: "#000",
-              color: "#fff",
-              fontWeight: "bold",
-              border: "none",
-              cursor: loading ? "not-allowed" : "pointer",
-              opacity: loading ? 0.8 : 1,
-            }}
-          >
-            {loading ? "Submitting..." : "Submit Application"}
+          <button type="submit" style={buttonStyle} disabled={status.state === "loading"}>
+            {status.state === "loading" ? "Submitting..." : "Submit Application"}
           </button>
+
+          {status.state === "success" && (
+            <p style={{ marginTop: "16px", color: "green" }}>{status.message}</p>
+          )}
+          {status.state === "error" && (
+            <p style={{ marginTop: "16px", color: "crimson" }}>
+              Something went wrong: {status.message}
+            </p>
+          )}
         </form>
       </main>
     </div>
+  );
+}
+
+function EquipmentCheckbox({ label, value, checked, onChange }) {
+  return (
+    <label style={checkboxItem}>
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={() => onChange(value)}
+        style={{ marginRight: "10px" }}
+      />
+      {label}
+    </label>
   );
 }
 
@@ -299,12 +232,32 @@ const inputStyle = {
   marginBottom: "20px",
   marginTop: "5px",
   border: "1px solid #ccc",
+  borderRadius: "8px",
 };
 
-const cardStyle = {
-  border: "1px solid #eee",
-  borderRadius: 12,
-  padding: 16,
-  marginTop: 10,
-  marginBottom: 10,
+const buttonStyle = {
+  marginTop: "10px",
+  padding: "14px",
+  width: "100%",
+  backgroundColor: "#000",
+  color: "#fff",
+  fontWeight: "bold",
+  border: "none",
+  borderRadius: "10px",
+  cursor: "pointer",
+};
+
+const checkboxWrap = {
+  display: "grid",
+  gridTemplateColumns: "1fr",
+  gap: "10px",
+  padding: "12px",
+  border: "1px solid #ccc",
+  borderRadius: "10px",
+};
+
+const checkboxItem = {
+  display: "flex",
+  alignItems: "center",
+  padding: "6px 0",
 };
