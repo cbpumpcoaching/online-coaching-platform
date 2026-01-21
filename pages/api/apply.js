@@ -14,7 +14,6 @@ export default async function handler(req, res) {
   try {
     const body = req.body || {};
 
-    // Forward to Apps Script webhook
     const r = await fetch(webhookUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -23,7 +22,6 @@ export default async function handler(req, res) {
 
     const text = await r.text();
 
-    // These logs WILL appear in Vercel logs
     console.log("Sheets webhook status:", r.status);
     console.log("Sheets webhook response:", text);
 
@@ -31,7 +29,6 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: "Webhook failed", details: text });
     }
 
-    // If Apps Script returns ok:false, treat it as failure
     try {
       const parsed = JSON.parse(text);
       if (parsed && parsed.ok === false) {
