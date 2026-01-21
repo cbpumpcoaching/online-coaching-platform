@@ -20,7 +20,6 @@ export default function Layout({ children }) {
         <nav style={{ display: "flex", gap: 22 }}>
           <Link href="/">Home</Link>
           <Link href="/pricing">Pricing</Link>
-          <Link href="/services">Services</Link>
           <Link href="/apply">Apply</Link>
           <Link href="/members">Members</Link>
         </nav>
