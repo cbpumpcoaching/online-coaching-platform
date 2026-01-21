@@ -5,9 +5,7 @@ export default async function handler(req, res) {
   }
 
   const webhookUrl = process.env.GOOGLE_SHEETS_WEBHOOK_URL;
-
   if (!webhookUrl) {
-    console.error("❌ Missing GOOGLE_SHEETS_WEBHOOK_URL env var");
     return res.status(500).json({ error: "Missing GOOGLE_SHEETS_WEBHOOK_URL env var" });
   }
 
@@ -16,29 +14,28 @@ export default async function handler(req, res) {
 
     const r = await fetch(webhookUrl, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+      },
       body: JSON.stringify(body),
     });
 
     const text = await r.text();
 
+    // Vercel logs
+    console.log("Sheets webhook URL:", webhookUrl);
     console.log("Sheets webhook status:", r.status);
     console.log("Sheets webhook response:", text);
 
-    if (!r.ok) {
-      return res.status(500).json({ error: "Webhook failed", details: text });
-    }
-
-    try {
-      const parsed = JSON.parse(text);
-      if (parsed && parsed.ok === false) {
-        return res.status(500).json({ error: "Apps Script error", details: parsed.error });
-      }
-    } catch (_) {}
-
-    return res.status(200).json({ ok: true });
+    // Return the exact response to the browser too (so you can see it)
+    return res.status(r.ok ? 200 : 500).json({
+      ok: r.ok,
+      status: r.status,
+      webhookResponse: text,
+    });
   } catch (err) {
-    console.error("❌ APPLY API ERROR:", err);
-    return res.status(500).json({ error: "Server error", details: String(err) });
+    console.error("Apply API error:", err);
+    return res.status(500).json({ ok: false, error: String(err) });
   }
 }
