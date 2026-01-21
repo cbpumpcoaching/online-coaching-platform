@@ -28,18 +28,28 @@ export default function Apply() {
     });
   }
 
+  // ✅ Map your form goal values to the generator/template goal names
+  function mapGoalToTemplate(goalValue) {
+    if (goalValue === "muscle_gain") return "Muscle Gain";
+    if (goalValue === "fat_loss") return "Fat Loss";
+    if (goalValue === "fitness") return "Improve Overall Fitness";
+    return "Muscle Gain"; // default fallback
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
     setStatus({ state: "loading", message: "" });
 
     try {
+      const payload = {
+        ...form,
+        submittedAt: new Date().toISOString(),
+      };
+
       const res = await fetch("/api/apply", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...form,
-          submittedAt: new Date().toISOString(),
-        }),
+        body: JSON.stringify(payload),
       });
 
       const data = await res.json();
@@ -47,10 +57,29 @@ export default function Apply() {
       if (!res.ok) {
         setStatus({
           state: "error",
-          message: data?.webhookResponse || data?.details || data?.error || "Submission failed",
+          message:
+            data?.webhookResponse ||
+            data?.details ||
+            data?.error ||
+            "Submission failed",
         });
         return;
       }
+
+      // ✅ Save onboarding for programme generation (PayPal success + /programme)
+      const onboardingForProgramme = {
+        goal: mapGoalToTemplate(form.goal),
+        experience: form.experience, // beginner/intermediate/advanced
+        daysPerWeek: Number(form.daysPerWeek), // make sure it's a number
+        equipment: form.equipment, // ["gym","dumbbells","bands","bodyweight"]
+        name: form.name,
+        email: form.email,
+      };
+
+      localStorage.setItem(
+        "cbpump_onboarding",
+        JSON.stringify(onboardingForProgramme)
+      );
 
       setStatus({ state: "success", message: "Application submitted ✅" });
 
